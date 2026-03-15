@@ -63,9 +63,14 @@ x-cli timeline -t following -l 5
 
 ### 2. Search Tweets (`search`)
 Searches X for a query and extracts the results. **Runs completely invisibly in the background.**
+You can specify the sort order using the `-s` flag (`top` or `latest`). Default is `top`.
 
 ```bash
+# Top results (default)
 x-cli search -q "Agentic AI" -l 3
+
+# Latest results
+x-cli search -q "Agentic AI" -s latest -l 3
 ```
 
 ### 3. Scrape Comments (`comments`)

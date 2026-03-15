@@ -7,11 +7,13 @@ export const searchCommand = new Command('search')
   .description('Search for tweets by query')
   .requiredOption('-q, --query <query>', 'Search query')
   .option('-l, --limit <number>', 'Number of posts to extract', '10')
+  .option('-s, --sort <sort>', 'Sort order: "top" or "latest"', 'top')
   .option('--headless <boolean>', 'Run in headless mode', 'true')
   .action(async (options) => {
     const limit = parseInt(options.limit, 10);
     const headless = options.headless !== 'false';
     const query = options.query;
+    const isLatest = options.sort === 'latest';
     
     let browser, page;
     try {
@@ -25,7 +27,8 @@ export const searchCommand = new Command('search')
         return;
       }
 
-      const searchUrl = `https://twitter.com/search?q=${encodeURIComponent(query)}&src=typed_query&f=live`;
+      const sortParam = isLatest ? '&f=live' : '';
+      const searchUrl = `https://twitter.com/search?q=${encodeURIComponent(query)}&src=typed_query${sortParam}`;
       await page.goto(searchUrl, { waitUntil: 'domcontentloaded' });
 
       // Wait for tweets to appear
