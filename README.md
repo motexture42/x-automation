@@ -76,13 +76,15 @@ x-cli comments -i 1234567890123456789 -l 5
 ```
 
 ### 4. Post a Tweet (`post`)
-Posts a new tweet. You can optionally attach an image or video using the `-m` flag.
+Posts a new tweet or a threaded series of tweets. You can optionally attach an image or video using the `-m` flag (attaches to the first tweet).
 *Note: Due to X's aggressive bot detection on Write actions, this command briefly flashes a visible Chrome window to utilize hardware graphics rendering, types the tweet, submits it via keyboard shortcut, and closes instantly.*
 
 ```bash
 x-cli post -t "Hello world from my AI agent! 🤖"
 # With an image:
 x-cli post -t "Check out this image!" -m "./path/to/image.png"
+# Create a thread (pass multiple strings):
+x-cli post -t "This is the first tweet in the thread." "This is the second tweet." "And the third one."
 ```
 
 ### 5. Reply to a Tweet (`reply`)
