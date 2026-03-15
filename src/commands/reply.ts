@@ -35,6 +35,22 @@ export const replyCommand = new Command('reply')
         return;
       }
 
+      const createdTweetIds: string[] = [];
+      page.on('response', async (response) => {
+        const url = response.url();
+        if (url.includes('CreateTweet') && response.status() === 200) {
+          try {
+            const json = await response.json();
+            const tweetResult = json?.data?.create_tweet?.tweet_results?.result;
+            if (tweetResult && tweetResult.rest_id) {
+              createdTweetIds.push(tweetResult.rest_id);
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
+      });
+
       await page.goto(`https://twitter.com/i/status/${tweetId}`, { waitUntil: 'domcontentloaded' });
 
       // Wait for the reply textarea
@@ -104,7 +120,11 @@ export const replyCommand = new Command('reply')
       }
 
       await browser.close();
-      outputJson({ success: true, message: `Successfully replied to tweet ${tweetId}.` });
+      outputJson({ 
+        success: true, 
+        message: `Successfully replied to tweet ${tweetId}.`,
+        tweetIds: createdTweetIds
+      });
 
     } catch (error: any) {
       if (browser) await browser.close();

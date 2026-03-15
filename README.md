@@ -97,6 +97,13 @@ x-cli reply -i 1234567890123456789 -t "This is a great point!"
 x-cli reply -i 1234567890123456789 -t "Here is proof:" -m "./proof.jpg"
 ```
 
+### 6. Fetch Tweet Analytics (`analytics`)
+Fetches engagement metrics (views, likes, retweets, replies, bookmarks) for a specific tweet by ID. **Runs completely invisibly in the background.**
+
+```bash
+x-cli analytics -i 1234567890123456789
+```
+
 ---
 
 ## 🤖 Guide for AI Agents
@@ -115,7 +122,8 @@ Success responses will always follow this format:
 {
   "success": true,
   "data": [ ... ], 
-  "message": "Optional status message"
+  "message": "Optional status message",
+  "tweetIds": ["1234567890123456789"] // (Only returned by 'post' and 'reply' commands)
 }
 ```
 

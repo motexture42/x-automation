@@ -6,6 +6,7 @@ import { postCommand } from './commands/post';
 import { replyCommand } from './commands/reply';
 import { searchCommand } from './commands/search';
 import { commentsCommand } from './commands/comments';
+import { analyticsCommand } from './commands/analytics';
 
 const program = new Command();
 
@@ -20,5 +21,6 @@ program.addCommand(postCommand);
 program.addCommand(replyCommand);
 program.addCommand(searchCommand);
 program.addCommand(commentsCommand);
+program.addCommand(analyticsCommand);
 
 program.parse(process.argv);

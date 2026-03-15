@@ -34,6 +34,22 @@ export const postCommand = new Command('post')
         return;
       }
 
+      const createdTweetIds: string[] = [];
+      page.on('response', async (response) => {
+        const url = response.url();
+        if (url.includes('CreateTweet') && response.status() === 200) {
+          try {
+            const json = await response.json();
+            const tweetResult = json?.data?.create_tweet?.tweet_results?.result;
+            if (tweetResult && tweetResult.rest_id) {
+              createdTweetIds.push(tweetResult.rest_id);
+            }
+          } catch (e) {
+            // ignore
+          }
+        }
+      });
+
       await page.goto('https://twitter.com/compose/tweet', { waitUntil: 'domcontentloaded' });
 
       // Wait for the first compose textarea
@@ -143,7 +159,11 @@ export const postCommand = new Command('post')
       }
 
       await browser.close();
-      outputJson({ success: true, message: texts.length > 1 ? 'Thread posted successfully.' : 'Tweet posted successfully.' });
+      outputJson({ 
+        success: true, 
+        message: texts.length > 1 ? 'Thread posted successfully.' : 'Tweet posted successfully.',
+        tweetIds: createdTweetIds
+      });
 
     } catch (error: any) {
       if (browser) await browser.close();
