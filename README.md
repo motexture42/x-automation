@@ -104,6 +104,24 @@ Fetches engagement metrics (views, likes, retweets, replies, bookmarks) for a sp
 x-cli analytics -i 1234567890123456789
 ```
 
+*Example Output:*
+```json
+{
+  "success": true,
+  "data": {
+    "id": "1234567890123456789",
+    "text": "The content of the tweet",
+    "metrics": {
+      "replies": "10",
+      "retweets": "2",
+      "likes": "105",
+      "bookmarks": "5",
+      "views": "5,832"
+    }
+  }
+}
+```
+
 ---
 
 ## 🤖 Guide for AI Agents
