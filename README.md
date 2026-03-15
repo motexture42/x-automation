@@ -122,6 +122,22 @@ x-cli analytics -i 1234567890123456789
 }
 ```
 
+### 7. Like a Tweet (`like`)
+Likes a specific tweet by its ID. 
+*Note: This flashes a visible window briefly to evade bot detection.*
+
+```bash
+x-cli like -i 1234567890123456789
+```
+
+### 8. Retweet / Repost (`retweet`)
+Retweets (Reposts) a specific tweet by its ID.
+*Note: This flashes a visible window briefly to evade bot detection.*
+
+```bash
+x-cli retweet -i 1234567890123456789
+```
+
 ---
 
 ## 🤖 Guide for AI Agents

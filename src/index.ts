@@ -7,6 +7,8 @@ import { replyCommand } from './commands/reply';
 import { searchCommand } from './commands/search';
 import { commentsCommand } from './commands/comments';
 import { analyticsCommand } from './commands/analytics';
+import { likeCommand } from './commands/like';
+import { retweetCommand } from './commands/retweet';
 
 const program = new Command();
 
@@ -22,5 +24,7 @@ program.addCommand(replyCommand);
 program.addCommand(searchCommand);
 program.addCommand(commentsCommand);
 program.addCommand(analyticsCommand);
+program.addCommand(likeCommand);
+program.addCommand(retweetCommand);
 
 program.parse(process.argv);
