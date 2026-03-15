@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+import { Command } from 'commander';
+import { authCommand } from './commands/auth';
+import { timelineCommand } from './commands/timeline';
+import { postCommand } from './commands/post';
+import { replyCommand } from './commands/reply';
+import { searchCommand } from './commands/search';
+import { commentsCommand } from './commands/comments';
+
+const program = new Command();
+
+program
+  .name('x-cli')
+  .description('Agentic AI-friendly X CLI using browser automation')
+  .version('1.0.0');
+
+program.addCommand(authCommand);
+program.addCommand(timelineCommand);
+program.addCommand(postCommand);
+program.addCommand(replyCommand);
+program.addCommand(searchCommand);
+program.addCommand(commentsCommand);
+
+program.parse(process.argv);
