@@ -14,6 +14,9 @@ It guarantees **structured JSON output**, **predictable exit codes**, and uses *
 - 💬 **Scrape Comments** (Extracts replies from a specific tweet thread).
 - ✍️ **Post Tweets** (Bypasses bot detection using hardware rendering and keyboard shortcuts).
 - ↩️ **Reply to Tweets** (Reply to posts or other comments).
+- 👍 **Like & Retweet** (Interact with specific tweets).
+- 🤝 **Follow Users** (Follow accounts directly or chained through interactions).
+- 🔗 **Chain Interactions** (Like, retweet, reply, and follow in a single session).
 
 ---
 
@@ -141,6 +144,28 @@ Retweets (Reposts) a specific tweet by its ID.
 
 ```bash
 x-cli retweet -i 1234567890123456789
+```
+
+### 9. Follow a User (`follow`)
+Follows a specific user by their handle (username).
+*Note: This flashes a visible window briefly to evade bot detection.*
+
+```bash
+x-cli follow -u target_username
+# With or without the @ works:
+x-cli follow -u @target_username
+```
+
+### 10. Chain Interactions (`interact`)
+Performs multiple actions on a single tweet within a single browser session (Like, Retweet, Reply, and Follow the author). This is significantly faster and safer than running individual commands back-to-back.
+*Note: This flashes a visible window briefly to evade bot detection.*
+
+```bash
+# Like, retweet, and reply all at once
+x-cli interact -i 1234567890123456789 -l -r --reply "This is a great thread!"
+
+# Like and follow the author
+x-cli interact -i 1234567890123456789 -l -f
 ```
 
 ---
