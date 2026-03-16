@@ -9,6 +9,7 @@ import { commentsCommand } from './commands/comments';
 import { analyticsCommand } from './commands/analytics';
 import { likeCommand } from './commands/like';
 import { retweetCommand } from './commands/retweet';
+import { interactCommand } from './commands/interact';
 
 const program = new Command();
 
@@ -26,5 +27,6 @@ program.addCommand(commentsCommand);
 program.addCommand(analyticsCommand);
 program.addCommand(likeCommand);
 program.addCommand(retweetCommand);
+program.addCommand(interactCommand);
 
 program.parse(process.argv);
