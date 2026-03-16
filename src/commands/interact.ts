@@ -6,11 +6,12 @@ import path from 'path';
 import fs from 'fs';
 
 export const interactCommand = new Command('interact')
-  .description('Interact with a tweet (like, retweet, reply) in a single session')
+  .description('Interact with a tweet (like, retweet, reply, follow) in a single session')
   .requiredOption('-i, --id <id>', 'ID of the tweet to interact with')
   .option('-l, --like', 'Like the tweet')
   .option('-r, --retweet', 'Retweet the tweet')
   .option('--reply <text>', 'Text content to reply with')
+  .option('-f, --follow', 'Follow the author of the tweet')
   .option('-m, --media <path>', 'Path to an image or video to attach to the reply')
   .option('--headless <boolean>', 'Run in headless mode', 'true')
   .action(async (options) => {
@@ -20,10 +21,11 @@ export const interactCommand = new Command('interact')
     const shouldLike = options.like || false;
     const shouldRetweet = options.retweet || false;
     const replyText = options.reply;
+    const shouldFollow = options.follow || false;
     const mediaPath = options.media ? path.resolve(process.cwd(), options.media) : null;
 
-    if (!shouldLike && !shouldRetweet && !replyText) {
-      outputError('No actions specified. Use --like, --retweet, or --reply.', 1);
+    if (!shouldLike && !shouldRetweet && !replyText && !shouldFollow) {
+      outputError('No actions specified. Use --like, --retweet, --reply, or --follow.', 1);
       return;
     }
 
@@ -47,10 +49,13 @@ export const interactCommand = new Command('interact')
 
       await page.goto(`https://twitter.com/i/status/${tweetId}`, { waitUntil: 'domcontentloaded' });
 
+      // Give extra time for page to render
+      await new Promise(r => setTimeout(r, 5000));
+
       // Wait for tweet to load
       try {
-        await page.waitForSelector('article[data-testid="tweet"]', { timeout: 15000 });
-        await new Promise(r => setTimeout(r, 2000)); // give it time to fully render
+        await page.waitForSelector('article[data-testid="tweet"]', { timeout: 30000 });
+        await new Promise(r => setTimeout(r, 3000)); // give it time to fully render
       } catch (err) {
         if (page.url().includes('login')) {
           outputError('Session expired or invalid.', 1);
@@ -203,6 +208,107 @@ export const interactCommand = new Command('interact')
 
         } catch (e: any) {
           results.actions.reply = { success: false, reason: e.message };
+        }
+      }
+
+      // ACTION 4: FOLLOW
+      if (shouldFollow) {
+        try {
+          const result = await page.evaluate(async (id) => {
+            const articles = Array.from(document.querySelectorAll('article[data-testid="tweet"]'));
+            let targetArticle = articles.find(a => {
+                const links = Array.from(a.querySelectorAll('a[href*="/status/"]'));
+                return links.some(l => l.getAttribute('href')?.includes(`/status/${id}`));
+            });
+            if (!targetArticle && articles.length > 0) targetArticle = articles[0];
+            if (!targetArticle) return { success: false, reason: 'Tweet not found in DOM' };
+            
+            // Look for a follow button on the tweet itself
+            const buttons = Array.from(targetArticle.querySelectorAll('button, [role="button"]'));
+            const followBtn = buttons.find(b => {
+                const ariaLabel = b.getAttribute('aria-label') || '';
+                const text = b.textContent?.trim() || '';
+                return ariaLabel.startsWith('Follow @') || text === 'Follow';
+            }) as HTMLElement;
+
+            if (followBtn) {
+               followBtn.click();
+               return { success: true, alreadyFollowing: false, clicked: true, method: 'inline' };
+            }
+            
+            // Check if already following from inline button
+            const followingBtn = buttons.find(b => {
+                const ariaLabel = b.getAttribute('aria-label') || '';
+                const text = b.textContent?.trim() || '';
+                return ariaLabel.startsWith('Following @') || text === 'Following';
+            }) as HTMLElement;
+
+            if (followingBtn) {
+               return { success: true, alreadyFollowing: true, method: 'inline' };
+            }
+
+            // Fallback: extract username to navigate to profile
+            const userLinks = Array.from(targetArticle.querySelectorAll('a[href^="/"][role="link"]'));
+            let username = null;
+            for (const link of userLinks) {
+                const href = link.getAttribute('href');
+                if (href && href.startsWith('/') && href.split('/').length === 2) {
+                    username = href.replace('/', '');
+                    // Verify it's not a standard path
+                    if (!['home', 'explore', 'notifications', 'messages', 'search'].includes(username.toLowerCase())) {
+                       break;
+                    } else {
+                       username = null;
+                    }
+                }
+            }
+
+            if (username) {
+                return { success: true, method: 'navigate', username };
+            }
+
+            return { success: false, reason: 'Could not determine author username or find follow button' };
+          }, tweetId);
+
+          if (!result.success) {
+             results.actions.follow = { success: false, reason: result.reason };
+          } else if (result.method === 'inline') {
+             results.actions.follow = { success: true, alreadyFollowing: result.alreadyFollowing };
+             if (!result.alreadyFollowing) await new Promise(r => setTimeout(r, 1000));
+          } else if (result.method === 'navigate' && result.username) {
+             await page.goto(`https://twitter.com/${result.username}`, { waitUntil: 'domcontentloaded' });
+             await page.waitForSelector('[data-testid="primaryColumn"]', { timeout: 15000 });
+             await new Promise(r => setTimeout(r, 2000));
+
+             const followResult = await page.evaluate(async (u) => {
+                const btns = Array.from(document.querySelectorAll('button, [role="button"]'));
+                const followingBtnProfile = btns.find(b => {
+                    const ariaLabel = b.getAttribute('aria-label') || '';
+                    const text = b.textContent?.trim() || '';
+                    return ariaLabel.startsWith('Following @') || text === 'Following';
+                }) as HTMLElement;
+                if (followingBtnProfile) return { success: true, alreadyFollowing: true };
+
+                const followBtnProfile = btns.find(b => {
+                    const ariaLabel = b.getAttribute('aria-label') || '';
+                    const text = b.textContent?.trim() || '';
+                    return ariaLabel.startsWith('Follow @') || text === 'Follow';
+                }) as HTMLElement;
+
+                if (followBtnProfile) {
+                    followBtnProfile.click();
+                    return { success: true, alreadyFollowing: false };
+                }
+                return { success: false, reason: 'Follow button not found on profile' };
+             }, result.username);
+
+             results.actions.follow = followResult;
+             if (followResult.success && !followResult.alreadyFollowing) {
+                 await new Promise(r => setTimeout(r, 2000));
+             }
+          }
+        } catch (e: any) {
+          results.actions.follow = { success: false, reason: e.message };
         }
       }
 

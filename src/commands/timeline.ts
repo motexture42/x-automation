@@ -27,9 +27,12 @@ export const timelineCommand = new Command('timeline')
 
       await page.goto('https://twitter.com/home', { waitUntil: 'domcontentloaded' });
 
+      // Give extra time for page to render
+      await new Promise(r => setTimeout(r, 5000));
+
       // Wait for tweets to appear
       try {
-        await page.waitForSelector('article[data-testid="tweet"]', { timeout: 15000 });
+        await page.waitForSelector('article[data-testid="tweet"]', { timeout: 30000 });
       } catch (err) {
         // Checking if we are redirected to login
         if (page.url().includes('login')) {
@@ -119,7 +122,7 @@ export const timelineCommand = new Command('timeline')
         if (extractedPosts.length < limit) {
           // Scroll down
           await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.8));
-          await new Promise(r => setTimeout(r, 1500)); // Wait for lazy load
+          await new Promise(r => setTimeout(r, 3000)); // Wait for lazy load
         }
       }
 
