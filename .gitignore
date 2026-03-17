@@ -130,6 +130,8 @@ Thumbs.db
 
 # Project Specific (CRITICAL)
 session.json
+history.json
 *.png
 debug*.png
 .browser_data/
+PERSONA.md
