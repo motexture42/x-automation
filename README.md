@@ -85,7 +85,7 @@ x-cli comments -i 1234567890123456789 -l 5
 
 ### 4. Post a Tweet (`post`)
 Posts a new tweet or a threaded series of tweets. You can optionally attach an image or video using the `-m` flag (attaches to the first tweet).
-*Note: Due to X's aggressive bot detection on Write actions, this command briefly flashes a visible Chrome window to utilize hardware graphics rendering, types the tweet, submits it via keyboard shortcut, and closes instantly.*
+*Note: Uses a persistent local browser cache (`.browser_data`) combined with stealth plugins to safely execute this completely invisibly in the background.*
 
 ```bash
 x-cli post -t "Hello world from my AI agent! 🤖"
@@ -132,7 +132,7 @@ x-cli analytics -i 1234567890123456789
 
 ### 7. Like a Tweet (`like`)
 Likes a specific tweet by its ID. 
-*Note: This flashes a visible window briefly to evade bot detection.*
+*Note: Uses a persistent local browser cache (`.browser_data`) combined with stealth plugins to safely execute this completely invisibly in the background.*
 
 ```bash
 x-cli like -i 1234567890123456789
@@ -140,7 +140,7 @@ x-cli like -i 1234567890123456789
 
 ### 8. Retweet / Repost (`retweet`)
 Retweets (Reposts) a specific tweet by its ID.
-*Note: This flashes a visible window briefly to evade bot detection.*
+*Note: Uses a persistent local browser cache (`.browser_data`) combined with stealth plugins to safely execute this completely invisibly in the background.*
 
 ```bash
 x-cli retweet -i 1234567890123456789
@@ -148,7 +148,7 @@ x-cli retweet -i 1234567890123456789
 
 ### 9. Follow a User (`follow`)
 Follows a specific user by their handle (username).
-*Note: This flashes a visible window briefly to evade bot detection.*
+*Note: Uses a persistent local browser cache (`.browser_data`) combined with stealth plugins to safely execute this completely invisibly in the background.*
 
 ```bash
 x-cli follow -u target_username
@@ -158,7 +158,7 @@ x-cli follow -u @target_username
 
 ### 10. Chain Interactions (`interact`)
 Performs multiple actions on a single tweet within a single browser session (Like, Retweet, Reply, and Follow the author). This is significantly faster and safer than running individual commands back-to-back.
-*Note: This flashes a visible window briefly to evade bot detection.*
+*Note: Uses a persistent local browser cache (`.browser_data`) combined with stealth plugins to safely execute this completely invisibly in the background.*
 
 ```bash
 # Like, retweet, and reply all at once
@@ -212,9 +212,10 @@ When reading timelines, searching, or scraping comments, the `data` array contai
 ```
 
 ## 🛡️ Stealth Architecture
-This CLI uses `puppeteer-extra-plugin-stealth` combined with the user's actual local Google Chrome binary. 
-- **Read Operations** (`timeline`, `search`, `comments`) bypass detection easily and run in Chrome's native `new` headless mode (100% invisible).
-- **Write Operations** (`post`, `reply`) are strictly monitored by X's Canvas/WebGL fingerprinting. To ensure a 0% ban rate, these commands intentionally run in `headful` (visible) mode for ~2 seconds. Furthermore, traditional `.click()` automation on the Post button is blocked by X, so the CLI utilizes simulated `Cmd+Enter` / `Ctrl+Enter` keyboard shortcuts to submit data naturally.
+This CLI uses `puppeteer-extra-plugin-stealth` combined with the user's actual local Google Chrome binary and a persistent local profile cache (`.browser_data`). 
+- **All Operations** (`timeline`, `search`, `comments`, `post`, `reply`, `interact`) now run in Chrome's headless mode (`true`) by default, making the CLI 100% invisible.
+- The persistent cache provides a history footprint and trusted cookies that prevent X from soft-blocking or throttling the headless instances. 
+- Traditional `.click()` automation on the Post/Reply buttons is blocked by X, so the CLI utilizes simulated `Cmd+Enter` / `Ctrl+Enter` keyboard shortcuts to submit data naturally.
 
 ---
 

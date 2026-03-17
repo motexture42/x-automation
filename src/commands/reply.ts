@@ -12,8 +12,8 @@ export const replyCommand = new Command('reply')
   .option('-m, --media <path>', 'Path to an image or video to attach')
   .option('--headless <boolean>', 'Run in headless mode', 'true')
   .action(async (options) => {
-    // Force headless to false for REPLY commands because X blocks headless writing
-    const headless = false;
+    // Allow user to control headless mode, defaults to true but can be risky for write actions
+    const headless = options.headless !== 'false';
     const tweetId = options.id;
     const text = options.text;
     const mediaPath = options.media ? path.resolve(process.cwd(), options.media) : null;

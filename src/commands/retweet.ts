@@ -8,7 +8,8 @@ export const retweetCommand = new Command('retweet')
   .requiredOption('-i, --id <id>', 'ID of the tweet to retweet')
   .option('--headless <boolean>', 'Run in headless mode', 'true')
   .action(async (options) => {
-    const headless = false; // Write operation, force visible
+    // Allow user to control headless mode, defaults to true
+    const headless = options.headless !== 'false';
     const tweetId = options.id;
 
     let browser, page;

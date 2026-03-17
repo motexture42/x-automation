@@ -132,3 +132,4 @@ Thumbs.db
 session.json
 *.png
 debug*.png
+.browser_data/

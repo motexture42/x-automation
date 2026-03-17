@@ -8,8 +8,8 @@ export const followCommand = new Command('follow')
   .requiredOption('-u, --username <username>', 'Username of the account to follow (without @)')
   .option('--headless <boolean>', 'Run in headless mode', 'true')
   .action(async (options) => {
-    // Follow action is a write action, forcing headless=false is usually safer for evasion
-    const headless = false;
+    // Allow user to control headless mode, defaults to true
+    const headless = options.headless !== 'false';
     const username = options.username.replace(/^@/, '');
 
     let browser, page;

@@ -48,6 +48,9 @@ export const commentsCommand = new Command('comments')
       await new Promise(r => setTimeout(r, 1000));
 
       // Scrolling loop
+      let previousHeight = 0;
+      let noChangeCount = 0;
+
       while (extractedComments.length < limit) {
         const tweetElements = await page.$$('article[data-testid="tweet"]');
         
@@ -105,7 +108,20 @@ export const commentsCommand = new Command('comments')
 
         if (extractedComments.length < limit) {
           await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.8));
-          await new Promise(r => setTimeout(r, 1500));
+          await new Promise(r => setTimeout(r, 2000));
+
+          // Check if we have hit the bottom of the page to break the loop
+          const newHeight = await page.evaluate(() => document.body.scrollHeight);
+          if (newHeight === previousHeight) {
+            noChangeCount++;
+            if (noChangeCount > 2) {
+              // We've tried scrolling multiple times with no new content, break the loop
+              break;
+            }
+          } else {
+            previousHeight = newHeight;
+            noChangeCount = 0;
+          }
         }
       }
 

@@ -15,8 +15,8 @@ export const interactCommand = new Command('interact')
   .option('-m, --media <path>', 'Path to an image or video to attach to the reply')
   .option('--headless <boolean>', 'Run in headless mode', 'true')
   .action(async (options) => {
-    // Force headless to false for write operations to avoid bot detection
-    const headless = false;
+    // Allow user to control headless mode, defaults to true
+    const headless = options.headless !== 'false';
     const tweetId = options.id;
     const shouldLike = options.like || false;
     const shouldRetweet = options.retweet || false;

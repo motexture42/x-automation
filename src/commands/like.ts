@@ -8,8 +8,8 @@ export const likeCommand = new Command('like')
   .requiredOption('-i, --id <id>', 'ID of the tweet to like')
   .option('--headless <boolean>', 'Run in headless mode', 'true')
   .action(async (options) => {
-    // Like action is a write action, might need headful or headless=false, let's try keeping it configurable but default to headless true since it's a simple click, but to be safe against bot detection, we might force headless=false. We'll stick to configurable with default true for now, but if it fails we can recommend false. Actually, let's follow post/reply and force headless=false for Write operations to be safe from canvas fingerprinting bans.
-    const headless = false; 
+    // Allow user to control headless mode, defaults to true
+    const headless = options.headless !== 'false';
     const tweetId = options.id;
 
     let browser, page;

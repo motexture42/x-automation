@@ -11,8 +11,8 @@ export const postCommand = new Command('post')
   .option('-m, --media <path>', 'Path to an image or video to attach (attaches to first tweet)')
   .option('--headless <boolean>', 'Run in headless mode', 'true')
   .action(async (options) => {
-    // Force headless to false for POST commands because X blocks headless writing
-    const headless = false;
+    // Allow user to control headless mode, defaults to true
+    const headless = options.headless !== 'false';
     const texts = Array.isArray(options.text) ? options.text : [options.text];
     const mediaPath = options.media ? path.resolve(process.cwd(), options.media) : null;
 
@@ -52,9 +52,12 @@ export const postCommand = new Command('post')
 
       await page.goto('https://twitter.com/compose/tweet', { waitUntil: 'domcontentloaded' });
 
+      // Give extra time for page to render
+      await new Promise(r => setTimeout(r, 5000));
+
       // Wait for the first compose textarea
       try {
-        await page.waitForSelector('[data-testid="tweetTextarea_0"]', { timeout: 15000 });
+        await page.waitForSelector('[data-testid="tweetTextarea_0"]', { timeout: 30000 });
       } catch (err) {
         if (page.url().includes('login')) {
           outputError('Session expired or invalid.', 1);
